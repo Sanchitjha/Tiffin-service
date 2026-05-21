@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <meta name="theme-color" content="#059669" />
-<title>Loopify Juice — CRM</title>
+<title>DabbaBox — Tiffin CRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -518,10 +518,10 @@ a{color:inherit;text-decoration:none}
   <!-- ========== SIDEBAR ========== -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-head">
-      <div class="logo">L</div>
+      <div class="logo">D</div>
       <div>
-        <div class="brand-name">Loopify Juice</div>
-        <div class="brand-sub">Customer Relationship Manager</div>
+        <div class="brand-name">DabbaBox</div>
+        <div class="brand-sub">Tiffin Service CRM</div>
       </div>
     </div>
     <nav class="nav scroll" id="nav"></nav>
@@ -621,7 +621,7 @@ function ic(name,size=16){return `<svg xmlns="http://www.w3.org/2000/svg" width=
 /* ======================================================================
    DATABASE (IndexedDB)
    ====================================================================== */
-const DB_NAME="loopify_crm_v2", DB_VER=1;
+const DB_NAME="dabbabox_crm_v2", DB_VER=1;
 const STORES=["customers","orders","subscriptions","products","leads","partners","whatsapp","activity","settings","stockmoves"];
 let db;
 function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB_NAME,DB_VER);r.onupgradeneeded=e=>{const d=e.target.result;STORES.forEach(s=>{if(!d.objectStoreNames.contains(s))d.createObjectStore(s,{keyPath:"id"})})};r.onsuccess=()=>{db=r.result;res(db)};r.onerror=()=>rej(r.error)})}
@@ -635,7 +635,7 @@ function uid(p=""){return p+Math.random().toString(36).slice(2,9)+Date.now().toS
 /* ======================================================================
    STATE
    ====================================================================== */
-const State={customers:[],orders:[],subscriptions:[],products:[],leads:[],partners:[],whatsapp:[],activity:[],settings:{},stockmoves:[],route:"dashboard",search:"",sortBy:{},theme:"light",business:{name:"Loopify Juice Co.",address:"123 Wellness Lane, Bangalore",gst:"",phone:"+91 98765 00000",email:"hello@loopifyjuice.in"}};
+const State={customers:[],orders:[],subscriptions:[],products:[],leads:[],partners:[],whatsapp:[],activity:[],settings:{},stockmoves:[],route:"dashboard",search:"",sortBy:{},theme:"light",business:{name:"DabbaBox Tiffin Service",address:"123 Food Street, Bangalore",gst:"",phone:"+91 98765 00000",email:"hello@dabbabox.in"}};
 async function loadAll(){for(const s of STORES){const data=await getAll(s);if(s==="settings"){const obj={};data.forEach(d=>obj[d.id]=d.value);State.settings=obj;if(obj.business)State.business={...State.business,...obj.business};if(obj.theme)State.theme=obj.theme;}else{State[s]=data;}}}
 async function saveSetting(id,value){await put("settings",{id,value});State.settings[id]=value;}
 
@@ -860,7 +860,7 @@ function pageDashboard(){
         <div id="topCust"></div>
       </div>
       <div class="card">
-        <div class="card-head"><div class="card-title">Popular juices</div><div class="card-sub">Units sold (all time)</div></div>
+        <div class="card-head"><div class="card-title">Popular tiffins</div><div class="card-sub">Units sold (all time)</div></div>
         <div class="card-pad"><canvas id="chartProd" height="170"></canvas></div>
       </div>
     </div>
@@ -881,7 +881,7 @@ function pageDashboard(){
       <div class="card">
         <div class="card-head"><div class="card-title">Low-stock alerts</div><span class="chip">${lowStock}</span></div>
         <div class="card-pad" style="display:flex;flex-direction:column;gap:8px">
-          ${(State.products.filter(p=>p.stock<=p.lowStockAt).slice(0,4).map(p=>`<div class="between" style="cursor:pointer" onclick="openProductForm('${p.id}')"><div class="row"><div style="font-size:22px">${esc(p.emoji||'🥤')}</div><div><div style="font-weight:600;font-size:13px">${esc(p.name)}</div><div class="muted" style="font-size:11.5px">${esc(p.category||'')}</div></div></div><span class="badge badge-danger">${p.stock} left</span></div>`).join(""))||`<div class="muted" style="font-size:13px;padding:8px 0">All items stocked. ✨</div>`}
+          ${(State.products.filter(p=>p.stock<=p.lowStockAt).slice(0,4).map(p=>`<div class="between" style="cursor:pointer" onclick="openProductForm('${p.id}')"><div class="row"><div style="font-size:22px">${esc(p.emoji||'🍱')}</div><div><div style="font-weight:600;font-size:13px">${esc(p.name)}</div><div class="muted" style="font-size:11.5px">${esc(p.category||'')}</div></div></div><span class="badge badge-danger">${p.stock} left</span></div>`).join(""))||`<div class="muted" style="font-size:13px;padding:8px 0">All items stocked. ✨</div>`}
         </div>
       </div>
     </div>
@@ -1170,7 +1170,7 @@ function pageOrders(){
               <td>${orderBadge(o.status)}</td>
               <td>${p?esc(p.name):'<span class="muted">—</span>'}</td>
               <td><button class="icon-btn" onclick="event.stopPropagation();openOrderForm('${o.id}')" title="Edit">${ic('edit',14)}</button></td>
-            </tr>`}).join(""):`<tr><td colspan="8">${emptyState("package","No orders",q||ORDER_FILTER!=="all"?"Try clearing filters.":"Record your first juice order.","New order","openOrderForm()")}</td></tr>`}
+            </tr>`}).join(""):`<tr><td colspan="8">${emptyState("package","No orders",q||ORDER_FILTER!=="all"?"Try clearing filters.":"Record your first tiffin order.","New order","openOrderForm()")}</td></tr>`}
           </tbody>
         </table>
       </div>
@@ -1207,7 +1207,7 @@ function addItemRow(prefill){
   const root=document.getElementById("itemRows");
   const div=document.createElement("div");
   div.style.cssText="display:grid;grid-template-columns:1fr 80px 110px 38px;gap:6px;align-items:center";
-  div.innerHTML=`<select class="select" data-k="product" onchange="onItemProductChange(this);recalcOrderTotal()"><option value="">— Pick juice —</option>${State.products.map(p=>`<option value="${p.id}" data-name="${esc(p.name)}" data-price="${p.price}" ${prefill&&prefill.productId===p.id?'selected':''}>${esc(p.name)} — ${fmtINR(p.price)}</option>`).join("")}</select><input class="input" data-k="qty" type="number" min="1" value="${prefill?prefill.qty:1}" placeholder="Qty" onchange="recalcOrderTotal()"/><input class="input" data-k="price" type="number" min="0" value="${prefill?prefill.price:''}" placeholder="Price" onchange="recalcOrderTotal()"/><button class="icon-btn" onclick="this.parentElement.remove();recalcOrderTotal()">${ic('trash',14)}</button>`;
+  div.innerHTML=`<select class="select" data-k="product" onchange="onItemProductChange(this);recalcOrderTotal()"><option value="">— Pick tiffin —</option>${State.products.map(p=>`<option value="${p.id}" data-name="${esc(p.name)}" data-price="${p.price}" ${prefill&&prefill.productId===p.id?'selected':''}>${esc(p.name)} — ${fmtINR(p.price)}</option>`).join("")}</select><input class="input" data-k="qty" type="number" min="1" value="${prefill?prefill.qty:1}" placeholder="Qty" onchange="recalcOrderTotal()"/><input class="input" data-k="price" type="number" min="0" value="${prefill?prefill.price:''}" placeholder="Price" onchange="recalcOrderTotal()"/><button class="icon-btn" onclick="this.parentElement.remove();recalcOrderTotal()">${ic('trash',14)}</button>`;
   root.appendChild(div);
 }
 function onItemProductChange(sel){const opt=sel.options[sel.selectedIndex];const row=sel.parentElement;const priceIn=row.querySelector('[data-k="price"]');if(opt&&opt.dataset.price)priceIn.value=opt.dataset.price}
@@ -1264,7 +1264,7 @@ function openOrderDetail(id){
         <div>
           <div class="card"><div class="card-head"><div class="card-title">Tracking</div></div><div class="card-pad timeline">${timeline}</div></div>
           <div class="card" style="margin-top:12px"><div class="card-head"><div class="card-title">Update status</div></div><div class="card-pad" style="display:flex;flex-wrap:wrap;gap:6px">${ORDER_STAGES.map(s=>`<button class="btn ${s===o.status?'btn-primary':'btn-secondary'} btn-sm" onclick="advanceOrder('${o.id}','${s}')">${ORDER_LABEL[s]}</button>`).join("")}</div></div>
-          <div class="row-tight" style="margin-top:12px;flex-wrap:wrap"><button class="btn btn-secondary btn-sm" onclick="openOrderForm('${o.id}')">${ic('edit',12)}<span>Edit order</span></button><button class="btn btn-secondary btn-sm" onclick="printInvoice('${o.id}')">${ic('printer',12)}<span>Print invoice</span></button>${cu&&cu.phone?`<a class="btn btn-secondary btn-sm" target="_blank" href="https://wa.me/${phoneClean(cu.phone)}?text=${encodeURIComponent('Hi '+cu.name+'! Your Loopify order #'+o.id.slice(-6).toUpperCase()+' is '+ORDER_LABEL[o.status]+'. Total: '+fmtINR(o.total))}">${ic('message',12)}<span>WhatsApp</span></a>`:''}</div>
+          <div class="row-tight" style="margin-top:12px;flex-wrap:wrap"><button class="btn btn-secondary btn-sm" onclick="openOrderForm('${o.id}')">${ic('edit',12)}<span>Edit order</span></button><button class="btn btn-secondary btn-sm" onclick="printInvoice('${o.id}')">${ic('printer',12)}<span>Print invoice</span></button>${cu&&cu.phone?`<a class="btn btn-secondary btn-sm" target="_blank" href="https://wa.me/${phoneClean(cu.phone)}?text=${encodeURIComponent('Hi '+cu.name+'! Your DabbaBox tiffin order #'+o.id.slice(-6).toUpperCase()+' is '+ORDER_LABEL[o.status]+'. Total: '+fmtINR(o.total))}">${ic('message',12)}<span>WhatsApp</span></a>`:''}</div>
         </div>
       </div>
     </div>`,"xl");
@@ -1282,7 +1282,7 @@ function printInvoice(orderId){
   const o=State.orders.find(x=>x.id===orderId);if(!o)return;
   const cu=State.customers.find(c=>c.id===o.customerId);const b=State.business;
   const win=window.open("","_blank","width=720,height=900");
-  const html=`<!doctype html><html><head><title>Invoice #${o.id.slice(-6).toUpperCase()}</title><style>body{font-family:Inter,sans-serif;padding:36px;color:#111;max-width:780px;margin:auto;font-size:13px;line-height:1.5}h1{margin:0;font-size:28px;letter-spacing:-.02em}.bar{height:6px;background:linear-gradient(90deg,#059669,#f59e0b);margin:16px 0 28px;border-radius:3px}table{width:100%;border-collapse:collapse;margin:18px 0}th,td{text-align:left;padding:9px 12px;border-bottom:1px solid #e7e5e4}th{background:#f5f5f4;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#666}.totals{margin-left:auto;width:280px}.totals .row{display:flex;justify-content:space-between;padding:5px 0}.totals .total{font-weight:700;font-size:18px;border-top:2px solid #111;padding-top:8px;margin-top:6px}.head{display:flex;justify-content:space-between;align-items:flex-start}.muted{color:#666;font-size:12px}@media print{body{padding:0}}</style></head><body><div class="head"><div><h1>${esc(b.name)}</h1><div class="muted">${esc(b.address)}</div><div class="muted">${esc(b.phone)} • ${esc(b.email)}</div></div><div style="text-align:right"><div style="font-size:22px;font-weight:700">INVOICE</div><div style="font-family:monospace;font-size:14px">#${o.id.slice(-6).toUpperCase()}</div><div class="muted">${fmtDate(o.createdAt)}</div></div></div><div class="bar"></div><div style="display:flex;justify-content:space-between;gap:30px"><div><div class="muted" style="font-weight:600">BILL TO</div><div style="font-weight:600;font-size:15px;margin-top:4px">${esc(cu?cu.name:'—')}</div><div class="muted">${esc(cu?cu.phone||'':'')}</div><div class="muted">${esc(o.deliveryAddress||cu?.address||'')}</div></div><div style="text-align:right"><div class="muted" style="font-weight:600">STATUS</div><div style="font-weight:600;font-size:15px;margin-top:4px;color:#059669">${ORDER_LABEL[o.status]}</div></div></div><table><thead><tr><th>Item</th><th style="text-align:right">Qty</th><th style="text-align:right">Price</th><th style="text-align:right">Amount</th></tr></thead><tbody>${(o.items||[]).map(i=>`<tr><td>${esc(i.name)}</td><td style="text-align:right">${i.qty}</td><td style="text-align:right">${fmtINR(i.price)}</td><td style="text-align:right">${fmtINR(i.qty*i.price)}</td></tr>`).join("")}</tbody></table><div class="totals"><div class="row"><span class="muted">Subtotal</span><span>${fmtINR(o.subtotal)}</span></div><div class="row"><span class="muted">Delivery</span><span>${fmtINR(o.deliveryFee||0)}</span></div><div class="row total"><span>Total</span><span>${fmtINR(o.total)}</span></div></div>${o.notes?`<div style="margin-top:30px;padding:14px 16px;background:#fef3c7;border-radius:8px;font-size:12.5px"><b>Notes:</b> ${esc(o.notes)}</div>`:''}<div style="margin-top:40px;text-align:center;color:#999;font-size:11px">Thank you for choosing ${esc(b.name)} 🥤</div></body></html>`;
+  const html=`<!doctype html><html><head><title>Invoice #${o.id.slice(-6).toUpperCase()}</title><style>body{font-family:Inter,sans-serif;padding:36px;color:#111;max-width:780px;margin:auto;font-size:13px;line-height:1.5}h1{margin:0;font-size:28px;letter-spacing:-.02em}.bar{height:6px;background:linear-gradient(90deg,#059669,#f59e0b);margin:16px 0 28px;border-radius:3px}table{width:100%;border-collapse:collapse;margin:18px 0}th,td{text-align:left;padding:9px 12px;border-bottom:1px solid #e7e5e4}th{background:#f5f5f4;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#666}.totals{margin-left:auto;width:280px}.totals .row{display:flex;justify-content:space-between;padding:5px 0}.totals .total{font-weight:700;font-size:18px;border-top:2px solid #111;padding-top:8px;margin-top:6px}.head{display:flex;justify-content:space-between;align-items:flex-start}.muted{color:#666;font-size:12px}@media print{body{padding:0}}</style></head><body><div class="head"><div><h1>${esc(b.name)}</h1><div class="muted">${esc(b.address)}</div><div class="muted">${esc(b.phone)} • ${esc(b.email)}</div></div><div style="text-align:right"><div style="font-size:22px;font-weight:700">INVOICE</div><div style="font-family:monospace;font-size:14px">#${o.id.slice(-6).toUpperCase()}</div><div class="muted">${fmtDate(o.createdAt)}</div></div></div><div class="bar"></div><div style="display:flex;justify-content:space-between;gap:30px"><div><div class="muted" style="font-weight:600">BILL TO</div><div style="font-weight:600;font-size:15px;margin-top:4px">${esc(cu?cu.name:'—')}</div><div class="muted">${esc(cu?cu.phone||'':'')}</div><div class="muted">${esc(o.deliveryAddress||cu?.address||'')}</div></div><div style="text-align:right"><div class="muted" style="font-weight:600">STATUS</div><div style="font-weight:600;font-size:15px;margin-top:4px;color:#059669">${ORDER_LABEL[o.status]}</div></div></div><table><thead><tr><th>Item</th><th style="text-align:right">Qty</th><th style="text-align:right">Price</th><th style="text-align:right">Amount</th></tr></thead><tbody>${(o.items||[]).map(i=>`<tr><td>${esc(i.name)}</td><td style="text-align:right">${i.qty}</td><td style="text-align:right">${fmtINR(i.price)}</td><td style="text-align:right">${fmtINR(i.qty*i.price)}</td></tr>`).join("")}</tbody></table><div class="totals"><div class="row"><span class="muted">Subtotal</span><span>${fmtINR(o.subtotal)}</span></div><div class="row"><span class="muted">Delivery</span><span>${fmtINR(o.deliveryFee||0)}</span></div><div class="row total"><span>Total</span><span>${fmtINR(o.total)}</span></div></div>${o.notes?`<div style="margin-top:30px;padding:14px 16px;background:#fef3c7;border-radius:8px;font-size:12.5px"><b>Notes:</b> ${esc(o.notes)}</div>`:''}<div style="margin-top:40px;text-align:center;color:#999;font-size:11px">Thank you for choosing ${esc(b.name)} 🍱</div></body></html>`;
   win.document.write(html);win.document.close();setTimeout(()=>win.print(),300);
 }
 function exportOrdersCSV(){
@@ -1365,24 +1365,24 @@ function pageProducts(){
     <div class="page-header"><div><div class="page-h1">Products & inventory</div><div class="page-h1-sub">${prods.length} products • ${low} low-stock • ${fmtINR(totalValue)} stock value</div></div><button class="btn btn-primary" onclick="openProductForm()">${ic('plus',13)}<span>Add product</span></button></div>
     <div class="prod-grid">
       ${prods.length?prods.map(p=>{const pct=Math.min(100,Math.round(p.stock/(p.lowStockAt*4||20)*100));const isLow=p.stock<=p.lowStockAt;return `<div class="prod-card" onclick="openProductForm('${p.id}')">
-        <div class="prod-emoji-wrap">${esc(p.emoji||'🥤')}</div>
+        <div class="prod-emoji-wrap">${esc(p.emoji||'🍱')}</div>
         <div class="prod-name">${esc(p.name)}</div>
         ${p.category?`<div class="muted" style="font-size:12px;margin-bottom:6px">${esc(p.category)}</div>`:''}
         <div class="between" style="margin-top:8px"><div class="prod-price num">${fmtINR(p.price)}</div>${isLow?`<span class="badge badge-danger"><span class="dot"></span>${p.stock} left</span>`:`<span class="badge badge-success"><span class="dot"></span>${p.stock} in stock</span>`}</div>
         <div class="prog"><div class="bar ${isLow?'low':''}" style="width:${pct}%"></div></div>
         ${p.description?`<div class="muted" style="font-size:11.5px;margin-top:8px;line-height:1.4">${esc(p.description)}</div>`:''}
-      </div>`}).join(""):emptyState("cup","No products","Add your juice catalog so you can record orders and track stock.","Add product","openProductForm()")}
+      </div>`}).join(""):emptyState("cup","No products","Add your tiffin menu items so you can record orders and track stock.","Add product","openProductForm()")}
     </div>`;
 }
 function openProductForm(id){
-  const p=id?State.products.find(x=>x.id===id):{id:uid("p_"),name:"",emoji:"🥤",category:"",price:0,stock:0,lowStockAt:5,description:""};
+  const p=id?State.products.find(x=>x.id===id):{id:uid("p_"),name:"",emoji:"🍱",category:"",price:0,stock:0,lowStockAt:5,description:""};
   if(id&&!p){UI.toast("Not found");return}
   UI.openModal(`
-    <div class="modal-head"><div><div class="modal-title">${id?'Edit product':'New product'}</div><div class="modal-sub">Juice catalog item</div></div><button class="icon-btn" onclick="UI.closeModal()">${ic('x',16)}</button></div>
+    <div class="modal-head"><div><div class="modal-title">${id?'Edit product':'New product'}</div><div class="modal-sub">Tiffin menu item</div></div><button class="icon-btn" onclick="UI.closeModal()">${ic('x',16)}</button></div>
     <div class="modal-body">
       <div class="field"><label class="lbl">Product name *</label><input id="f_name" class="input" value="${esc(p.name)}" placeholder="Green Detox"/></div>
       <div class="field-row">
-        <div class="field"><label class="lbl">Emoji</label><input id="f_emoji" class="input" value="${esc(p.emoji||'🥤')}" maxlength="2" style="text-align:center;font-size:18px"/></div>
+        <div class="field"><label class="lbl">Emoji</label><input id="f_emoji" class="input" value="${esc(p.emoji||'🍱')}" maxlength="2" style="text-align:center;font-size:18px"/></div>
         <div class="field"><label class="lbl">Category</label><input id="f_cat" class="input" value="${esc(p.category||'')}" placeholder="Detox / Energy / Shot"/></div>
       </div>
       <div class="field-row-3">
@@ -1400,7 +1400,7 @@ async function saveProduct(id,isEdit){
   const name=document.getElementById("f_name").value.trim();
   if(!name){UI.toast("Name required","error");return}
   const prev=State.products.find(x=>x.id===id);
-  const obj={id,name,emoji:document.getElementById("f_emoji").value.trim()||"🥤",category:document.getElementById("f_cat").value.trim(),price:parseFloat(document.getElementById("f_price").value)||0,stock:parseInt(document.getElementById("f_stock").value)||0,lowStockAt:parseInt(document.getElementById("f_low").value)||5,description:document.getElementById("f_desc").value.trim()};
+  const obj={id,name,emoji:document.getElementById("f_emoji").value.trim()||"🍱",category:document.getElementById("f_cat").value.trim(),price:parseFloat(document.getElementById("f_price").value)||0,stock:parseInt(document.getElementById("f_stock").value)||0,lowStockAt:parseInt(document.getElementById("f_low").value)||5,description:document.getElementById("f_desc").value.trim()};
   await put("products",obj);
   if(prev&&prev.stock!==obj.stock){await put("stockmoves",{id:uid("sm_"),at:Date.now(),productId:obj.id,delta:obj.stock-prev.stock,reason:"Manual stock adjustment"})}
   const idx=State.products.findIndex(p=>p.id===id);if(idx>=0)State.products[idx]=obj;else State.products.push(obj);
@@ -1544,7 +1544,7 @@ function openPartnerDetail(id){
 
 /* ====================== WHATSAPP INBOX ====================== */
 let WA_SELECTED=null;
-const WA_TEMPLATES=["Hi! Thanks for reaching out to Loopify Juice 🥤","Our weekly wellness pack starts at ₹999. Shall I share the menu?","Your order is being prepared — out for delivery soon.","Cold-pressed and preservative-free — 100% fresh!","Could you share your area? We deliver across the city.","What flavours are you most interested in?"];
+const WA_TEMPLATES=["Hi! Thanks for reaching out to DabbaBox Tiffin Service 🍱","Our monthly tiffin plan starts at ₹3,299. Shall I share the full menu?","Your tiffin is being packed — out for delivery soon!","Freshly cooked every day — no preservatives, home-style meals!","Could you share your area? We deliver across the city.","Do you prefer Veg, Non-Veg, or Jain tiffin?"];
 function pageWhatsapp(){
   const groups={};State.whatsapp.forEach(m=>(groups[m.phone]=groups[m.phone]||[]).push(m));
   const threads=Object.entries(groups).map(([phone,msgs])=>{msgs.sort((a,b)=>a.at-b.at);const last=msgs[msgs.length-1];const unread=msgs.filter(m=>m.unread).length;const cu=State.customers.find(c=>phoneClean(c.phone||"")===phoneClean(phone));return {phone,msgs,last,unread,cu}}).sort((a,b)=>b.last.at-a.last.at);
@@ -1580,7 +1580,7 @@ function pageWhatsapp(){
 pageWhatsapp.after=function(){const el=document.getElementById("waMsgs");if(el)el.scrollTop=el.scrollHeight};
 async function waSendReply(phone){const inp=document.getElementById("waReply");const text=inp.value.trim();if(!text)return;const m={id:uid("m_"),phone,dir:"out",text,at:Date.now(),unread:false};await put("whatsapp",m);State.whatsapp.push(m);await logActivity(`WhatsApp reply to ${phone}`,"info");inp.value="";App.render()}
 async function markWaRead(phone){const list=State.whatsapp.filter(m=>m.phone===phone&&m.unread);for(const m of list){m.unread=false;await put("whatsapp",m)}updateBellDot();renderNav()}
-async function simulateWhatsApp(){const samples=[{n:"Aarav Sharma",p:"+919876512345",t:"Hi, do you deliver to Indiranagar?"},{n:"Priya Menon",p:"+919812345678",t:"Want to subscribe to a weekly detox plan, can you share pricing?"},{n:"Rohan Verma",p:"+918888812345",t:"Just placed an order — when will it arrive?"},{n:"Sanya Iyer",p:"+919900099001",t:"Are the cold-pressed juices preservative-free?"},{n:"Karan Patel",p:"+917777123456",t:"Need 30 bottles for an office event next Friday."}];const s=samples[Math.floor(Math.random()*samples.length)];const m={id:uid("m_"),phone:s.p,name:s.n,dir:"in",text:s.t,at:Date.now(),unread:true};await put("whatsapp",m);State.whatsapp.push(m);await logActivity(`📩 WhatsApp from ${s.n}`,"info");UI.toast("New WhatsApp message","success");WA_SELECTED=s.p;updateBellDot();renderNav();if(State.route!=="whatsapp")App.go("whatsapp");else App.render()}
+async function simulateWhatsApp(){const samples=[{n:"Aarav Sharma",p:"+919876512345",t:"Hi, do you deliver tiffin to Indiranagar?"},{n:"Priya Menon",p:"+919812345678",t:"I want a monthly tiffin subscription. Do you have a Jain option?"},{n:"Rohan Verma",p:"+918888812345",t:"My tiffin hasn't arrived yet — it's already 1 PM."},{n:"Sanya Iyer",p:"+919900099001",t:"Is the food freshly cooked every day or pre-packed?"},{n:"Karan Patel",p:"+917777123456",t:"Need 25 tiffins daily for our office in Whitefield. What are bulk rates?"}];const s=samples[Math.floor(Math.random()*samples.length)];const m={id:uid("m_"),phone:s.p,name:s.n,dir:"in",text:s.t,at:Date.now(),unread:true};await put("whatsapp",m);State.whatsapp.push(m);await logActivity(`📩 WhatsApp from ${s.n}`,"info");UI.toast("New WhatsApp message","success");WA_SELECTED=s.p;updateBellDot();renderNav();if(State.route!=="whatsapp")App.go("whatsapp");else App.render()}
 async function waCreateCustomer(phone){const msg=State.whatsapp.find(m=>m.phone===phone&&m.dir==="in");const name=prompt("Customer name",msg?.name||"");if(!name)return;const c={id:uid("c_"),name,phone,email:"",area:"",address:"",tags:["from-whatsapp"],notes:msg?msg.text:"",createdAt:Date.now()};await put("customers",c);State.customers.push(c);await logActivity(`Added customer ${name} from WhatsApp`,"info");UI.toast("Customer saved","success");App.render();renderNav()}
 async function waCreateLead(phone){const msg=State.whatsapp.find(m=>m.phone===phone&&m.dir==="in");const l={id:uid("l_"),name:msg?.name||phone,phone,source:"WhatsApp Bot",stage:"new",followUp:daysFromNow(1),notes:msg?msg.text:"",createdAt:Date.now()};await put("leads",l);State.leads.push(l);await logActivity(`Lead created from WhatsApp: ${l.name}`,"info");UI.toast("Lead created","success");App.render();renderNav()}
 window.crm={ingestWhatsApp:async({phone,name,text})=>{const m={id:uid("m_"),phone,name:name||"",dir:"in",text,at:Date.now(),unread:true};await put("whatsapp",m);State.whatsapp.push(m);updateBellDot();renderNav();if(State.route==="whatsapp")App.render()}};
@@ -1719,7 +1719,7 @@ function pageSettings(){
 async function saveBusiness(){const b={name:document.getElementById("biz_name").value.trim(),address:document.getElementById("biz_addr").value.trim(),phone:document.getElementById("biz_phone").value.trim(),email:document.getElementById("biz_email").value.trim(),gst:document.getElementById("biz_gst").value.trim()};State.business=b;await saveSetting("business",b);UI.toast("Business info saved","success")}
 
 /* ====================== BACKUP / RESET ====================== */
-async function exportBackup(){const dump={};for(const s of STORES)dump[s]=await getAll(s);downloadFile(`loopify-crm-backup-${todayISO()}.json`,JSON.stringify(dump,null,2),"application/json");UI.toast("Backup downloaded","success")}
+async function exportBackup(){const dump={};for(const s of STORES)dump[s]=await getAll(s);downloadFile(`dabbabox-backup-${todayISO()}.json`,JSON.stringify(dump,null,2),"application/json");UI.toast("Backup downloaded","success")}
 async function importBackup(ev){const f=ev.target.files[0];if(!f)return;const txt=await f.text();try{const data=JSON.parse(txt);UI.confirm("This will replace ALL current CRM data with the backup. Continue?",async()=>{for(const s of STORES){await clearStore(s);if(Array.isArray(data[s]))for(const it of data[s])await put(s,it)}await loadAll();UI.toast("Backup restored","success");App.render();renderNav();updateBellDot()},true)}catch(e){UI.toast("Could not read backup: "+e.message,"error")}ev.target.value=""}
 function resetData(){UI.confirm("Wipe all data and reload the demo dataset?",async()=>{for(const s of STORES)await clearStore(s);await seedDemo();await loadAll();UI.toast("Demo data restored","success");App.render();renderNav();updateBellDot()},true)}
 
