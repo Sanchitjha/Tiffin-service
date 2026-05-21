@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="theme-color" content="#4a7c59" />
+<title>Sign in — DabbaBox Tiffin CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<style>
+.login-bg{
+  min-height:100vh;display:grid;place-items:center;padding:20px;
+  background:linear-gradient(135deg, #f5f3ed 0%, #eef3e8 50%, #fde9c1 100%);
+}
+.login-card{
+  width:100%;max-width:420px;background:#fff;border:1px solid var(--c-border);
+  border-radius:20px;box-shadow:var(--shadow-pop);padding:36px 30px;
+}
+.login-logo{
+  width:64px;height:64px;border-radius:18px;
+  background:linear-gradient(135deg,#4a7c59 0%,#7ba888 45%,#f9a620 100%);
+  display:grid;place-items:center;color:#fff;font-weight:800;font-size:32px;font-family:var(--font-serif);
+  box-shadow:0 8px 24px rgba(74,124,89,.32);margin:0 auto 18px;
+}
+.login-title{font-family:var(--font-serif);font-size:28px;font-weight:700;text-align:center;letter-spacing:-.02em;margin:0}
+.login-sub{text-align:center;color:var(--c-muted);font-size:13.5px;margin-top:6px;margin-bottom:24px}
+.err{background:var(--c-danger-tint);color:var(--c-danger);padding:8px 12px;border-radius:8px;font-size:13px;margin-bottom:12px;display:none}
+.creds-hint{text-align:center;font-size:11.5px;color:var(--c-muted-2);margin-top:20px;line-height:1.5}
+.creds-hint code{font-family:var(--font-mono);background:var(--c-surface-2);padding:1px 5px;border-radius:4px;font-size:11px}
+</style>
+</head>
+<body>
+<div class="login-bg">
+  <div class="login-card">
+    <div class="login-logo">D</div>
+    <h1 class="login-title">DabbaBox</h1>
+    <div class="login-sub">Sign in to your Tiffin CRM</div>
+    <div class="err" id="err"></div>
+    <form id="loginForm">
+      <div class="field"><label class="lbl">Email</label><input id="email" class="input" type="email" autocomplete="email" required value="admin@dabbabox.in"/></div>
+      <div class="field"><label class="lbl">Password</label><input id="password" class="input" type="password" autocomplete="current-password" required/></div>
+      <button class="btn btn-primary btn-lg" type="submit" style="width:100%;justify-content:center">Sign in</button>
+    </form>
+    <div class="creds-hint">
+      Default admin: <code>admin@dabbabox.in</code> / <code>dabbabox@2026</code><br/>
+      Change in <b>Settings</b> after signing in.
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const err = document.getElementById("err"); err.style.display = "none";
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  try {
+    const r = await fetch("/api/auth/login", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ email, password }) });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || "Login failed");
+    localStorage.setItem("dabbabox_token", data.token);
+    localStorage.setItem("dabbabox_user", JSON.stringify(data.user));
+    location.href = "/";
+  } catch (ex) {
+    err.textContent = ex.message; err.style.display = "block";
+  }
+});
+</script>
+</body>
+</html>
