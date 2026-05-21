@@ -29,7 +29,16 @@ const seed = require("./seed");
 const PORT = process.env.PORT || 4000;
 
 const app = express();
-app.use(cors());
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "")
+  .split(",").map(s => s.trim()).filter(Boolean);
+app.use(cors({
+  origin: (origin, cb) => {
+    // Allow requests with no origin (curl, Render health checks) and any allowed origin
+    if (!origin || ALLOWED_ORIGINS.length === 0 || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+    cb(new Error("CORS: origin not allowed"));
+  },
+  credentials: true,
+}));
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true })); // for Twilio webhook
 app.use((req, _res, next) => {

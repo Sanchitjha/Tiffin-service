@@ -1,6 +1,6 @@
 /* API client — wraps fetch() with JWT bearer auth */
 const API = (() => {
-  const base = "/api";
+  const base = (window.BACKEND_URL || "") + "/api";
   function tokenHeaders() {
     const t = localStorage.getItem("dabbabox_token");
     return t ? { Authorization: "Bearer " + t } : {};
