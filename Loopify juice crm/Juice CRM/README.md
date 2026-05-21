@@ -1,6 +1,6 @@
-# Loopify Juice — CRM
+# DabbaBox — Tiffin Service CRM
 
-A production-grade, self-hosted CRM for a cold-pressed juice business: customers, orders with delivery tracking, recurring subscriptions, products & inventory, leads pipeline, delivery partners, WhatsApp inbox (real webhook), reports, and a calendar.
+A production-grade, self-hosted CRM for a tiffin delivery business: customers, orders with delivery tracking, recurring subscriptions, products & inventory, leads pipeline, delivery partners, WhatsApp inbox (real webhook), reports, and a calendar.
 
 **Stack:** Node.js + Express + SQLite on the backend. Vanilla JS + Inter/Fraunces typography on the frontend. JWT auth. No build step. ~3,500 lines total.
 
@@ -24,8 +24,8 @@ Either way, the app will be live at **http://localhost:4000**.
 
 ### Default login
 ```
-Email:    admin@loopifyjuice.in
-Password: loopify@2026
+Email:    admin@dabbabox.in
+Password: dabbabox@2026
 ```
 Change the password under **Settings → Account** after first sign-in. (Or edit `backend/.env` before first run to set your own defaults.)
 
@@ -34,7 +34,7 @@ Change the password under **Settings → Account** after first sign-in. (Or edit
 ## What's inside
 
 ```
-Juice CRM/
+Tiffin CRM/
 ├── start.bat / start.sh          One-click launchers
 ├── README.md
 ├── backend/
@@ -49,7 +49,7 @@ Juice CRM/
 │   │   ├── auth.js  customers.js  products.js  partners.js
 │   │   ├── orders.js  subscriptions.js  leads.js
 │   │   ├── whatsapp.js  reports.js  settings.js
-│   └── data/loopify.db           SQLite database (auto-created)
+│   └── data/dabbabox.db          SQLite database (auto-created)
 └── frontend/
     ├── index.html  login.html
     ├── css/styles.css
@@ -73,12 +73,12 @@ Juice CRM/
 - Leads & follow-ups (kanban with drag-and-drop, convert to customer)
 
 **Operations**
-- Products & inventory (stock levels, low-stock alerts, automatic stock decrement on delivery, movement log)
+- Products & inventory (tiffin items, stock levels, low-stock alerts, automatic stock decrement on delivery, movement log)
 - Delivery partners (riders with active/delivered/total stats)
 - WhatsApp inbox with **real webhook** for Meta Cloud API / Twilio (see below)
 
 **Insights**
-- Dashboard with KPIs, revenue trend, status mix, top customers, popular juices, today's deliveries/follow-ups
+- Dashboard with KPIs, revenue trend, status mix, top customers, popular tiffins, today's deliveries/follow-ups
 - Reports (revenue over time, revenue by area, top customers, product performance, lead conversion)
 - Calendar view (orders, subscription deliveries, follow-ups overlaid)
 
@@ -100,7 +100,7 @@ GET  http://your-server/api/whatsapp/webhook   (verification handshake)
 POST http://your-server/api/whatsapp/webhook   (inbound messages)
 ```
 
-**Verify token** is set in `backend/.env` as `WHATSAPP_VERIFY_TOKEN` (default: `loopify-verify-token-2026`).
+**Verify token** is set in `backend/.env` as `WHATSAPP_VERIFY_TOKEN` (default: `dabbabox-verify-token-2026`).
 
 Both **Meta Cloud API** and **Twilio** payload formats are auto-detected. A generic `{ phone, name, text }` JSON body also works (handy for custom bots).
 
@@ -142,9 +142,9 @@ npm run reset # Wipe all data and reseed
 |---|---|---|
 | `PORT` | `4000` | HTTP port |
 | `JWT_SECRET` | `change-me-…` | **Change this in production.** Token signing key. |
-| `ADMIN_EMAIL` | `admin@loopifyjuice.in` | Default admin email (only on first run) |
-| `ADMIN_PASSWORD` | `loopify@2026` | Default admin password (only on first run) |
-| `WHATSAPP_VERIFY_TOKEN` | `loopify-verify-token-2026` | Webhook verification token |
+| `ADMIN_EMAIL` | `admin@dabbabox.in` | Default admin email (only on first run) |
+| `ADMIN_PASSWORD` | `dabbabox@2026` | Default admin password (only on first run) |
+| `WHATSAPP_VERIFY_TOKEN` | `dabbabox-verify-token-2026` | Webhook verification token |
 | `TWILIO_SID` | — | Optional: Twilio Account SID for real outbound sending |
 | `TWILIO_TOKEN` | — | Optional: Twilio Auth Token |
 | `TWILIO_FROM` | — | Optional: sender number in `whatsapp:+14155238886` format |
@@ -157,7 +157,7 @@ Three ways to back up:
 
 1. **In-app JSON backup** — Settings → "Download backup (JSON)" exports the full database as a single JSON file. Restore from the same page.
 2. **CSV exports** — Settings → "Customers (CSV)" / "Orders (CSV)" for spreadsheet-friendly extracts.
-3. **File-level** — copy `backend/data/loopify.db` to back up the raw SQLite database; paste it back to migrate machines.
+3. **File-level** — copy `backend/data/dabbabox.db` to back up the raw SQLite database; paste it back to migrate machines.
 
 There's also **Reset to demo data** in Settings if you want to wipe everything and start over with the seed dataset.
 
@@ -170,7 +170,7 @@ There's also **Reset to demo data** in Settings if you want to wipe everything a
 3. Clone or upload this folder.
 4. `cd backend && npm install`.
 5. Edit `.env` — **set a strong `JWT_SECRET`**, change admin password.
-6. Run with [pm2](https://pm2.keymetrics.io/) for production: `npm i -g pm2 && pm2 start server.js --name loopify`.
+6. Run with [pm2](https://pm2.keymetrics.io/) for production: `npm i -g pm2 && pm2 start server.js --name dabbabox`.
 7. Put nginx in front for HTTPS termination + serve `/api/whatsapp/webhook` to the world.
 
 ---
