@@ -2,6 +2,7 @@
 const App = {
   async go(route) {
     State.route = route; State.search = "";
+    window.location.hash = route;
     const r = ROUTES.find(x => x.id === route);
     document.getElementById("pageTitle").textContent = r ? r.label : "";
     document.getElementById("globalSearch").value = "";

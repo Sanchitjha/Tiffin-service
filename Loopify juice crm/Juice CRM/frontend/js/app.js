@@ -30,5 +30,14 @@
     } catch {}
   }, 15000);
 
-  App.go("dashboard");
+  // Restore page from URL hash, fallback to dashboard
+  const VALID_ROUTES = ["dashboard","customers","orders","subscriptions","products","leads","partners","whatsapp","calendar","reports","settings"];
+  const hashRoute = window.location.hash.replace("#", "");
+  App.go(VALID_ROUTES.includes(hashRoute) ? hashRoute : "dashboard");
+
+  // Browser back/forward button support
+  window.addEventListener("hashchange", () => {
+    const r = window.location.hash.replace("#", "");
+    if (VALID_ROUTES.includes(r) && r !== State.route) App.go(r);
+  });
 })();
