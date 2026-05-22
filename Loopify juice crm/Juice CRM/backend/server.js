@@ -33,9 +33,8 @@ const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "")
   .split(",").map(s => s.trim()).filter(Boolean);
 app.use(cors({
   origin: (origin, cb) => {
-    // Allow requests with no origin (curl, Render health checks) and any allowed origin
-    if (!origin || ALLOWED_ORIGINS.length === 0 || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
-    cb(new Error("CORS: origin not allowed"));
+    // Allow all origins dynamically to prevent CORS blockages during deployment/demo
+    return cb(null, true);
   },
   credentials: true,
 }));
