@@ -1,10 +1,22 @@
 const express = require("express");
 const router = express.Router();
-const { db, uid, rowToWa } = require("../db");
+const { db, uid, rowToWa, systemDb, asyncLocalStorage, getTenantDb } = require("../db");
 const { requireAuth } = require("../auth");
 const { generateBotReply } = require("../chatbot");
 
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || "dabbabox-verify-token-2026";
+
+function getRecipientNumber(body) {
+  try {
+    if (body.entry && body.entry[0] && body.entry[0].changes && body.entry[0].changes[0] && body.entry[0].changes[0].value && body.entry[0].changes[0].value.metadata) {
+      const num = body.entry[0].changes[0].value.metadata.display_phone_number;
+      if (num) return "+" + num.replace(/\D/g, "");
+    }
+  } catch {}
+  if (body.To) return String(body.To).replace(/^whatsapp:/i, "").trim();
+  if (body.recipientPhone) return body.recipientPhone;
+  return null;
+}
 
 /* ===========================================================
    PUBLIC WEBHOOK — point your WhatsApp bot/provider here
@@ -26,35 +38,56 @@ router.get("/webhook", (req, res) => {
 
 router.post("/webhook", async (req, res) => {
   const body = req.body || {};
-  const messages = parseInbound(body);
-  for (const m of messages) {
-    db.prepare("INSERT INTO whatsapp_messages (id, phone, name, direction, text, unread, at) VALUES (?, ?, ?, ?, ?, ?, ?)")
-      .run(uid("m_"), m.phone, m.name || null, "in", m.text, 1, Date.now());
-    console.log(`📩 WA in from ${m.phone}: ${m.text.slice(0, 60)}`);
-
-    // --- Chatbot Integration ---
-    try {
-      const replyText = await generateBotReply(m);
-      if (replyText) {
-        console.log(`🤖 Bot generated a reply for ${m.phone}...`);
-        const replyId = uid("m_");
-        // Save the bot's reply in the database as an outgoing message
-        db.prepare("INSERT INTO whatsapp_messages (id, phone, name, direction, text, unread, at) VALUES (?, ?, ?, ?, ?, ?, ?)")
-          .run(replyId, m.phone, null, "out", replyText, 0, Date.now());
-        
-        // Try to send via Twilio if configured
-        const provider = await sendViaTwilio(m.phone, replyText);
-        if (provider.sent) {
-          console.log(`📤 WA bot sent via Twilio to ${m.phone} (SID: ${provider.sid})`);
-        } else {
-          console.log(`📝 WA bot reply stored locally for ${m.phone} (${provider.reason})`);
-        }
-      }
-    } catch (err) {
-      console.error("Chatbot processing error:", err);
-    }
+  const recipientNum = getRecipientNumber(body);
+  let tenantId = "default";
+  
+  if (recipientNum) {
+    const t = systemDb.prepare("SELECT id FROM tenants WHERE whatsapp_number = ?").get(recipientNum);
+    if (t) tenantId = t.id;
   }
-  res.status(200).json({ ok: true, received: messages.length });
+
+  const activeDb = getTenantDb(tenantId);
+  await asyncLocalStorage.run({ db: activeDb, tenantId }, async () => {
+    const messages = parseInbound(body);
+    for (const m of messages) {
+      db.prepare("INSERT INTO whatsapp_messages (id, phone, name, direction, text, unread, at) VALUES (?, ?, ?, ?, ?, ?, ?)")
+        .run(uid("m_"), m.phone, m.name || null, "in", m.text, 1, Date.now());
+      console.log(`[Tenant: ${tenantId}] 📩 WA in from ${m.phone}: ${m.text.slice(0, 60)}`);
+
+      // Track incoming WhatsApp API message usage
+      systemDb.prepare(`
+        INSERT INTO whatsapp_api_usage (id, tenant_id, direction, type, cost, at)
+        VALUES (?, ?, 'in', 'service', 0.05, ?)
+      `).run(uid("wa_"), tenantId, Date.now());
+
+      // --- Chatbot Integration ---
+      try {
+        const replyText = await generateBotReply(m);
+        if (replyText) {
+          console.log(`🤖 Bot reply for ${m.phone} in tenant ${tenantId}`);
+          const replyId = uid("m_");
+          db.prepare("INSERT INTO whatsapp_messages (id, phone, name, direction, text, unread, at) VALUES (?, ?, ?, ?, ?, ?, ?)")
+            .run(replyId, m.phone, null, "out", replyText, 0, Date.now());
+          
+          // Track outgoing WhatsApp API message usage
+          systemDb.prepare(`
+            INSERT INTO whatsapp_api_usage (id, tenant_id, direction, type, cost, at)
+            VALUES (?, ?, 'out', 'service', 0.05, ?)
+          `).run(uid("wa_"), tenantId, Date.now());
+
+          const provider = await sendViaTwilio(m.phone, replyText);
+          if (provider.sent) {
+            console.log(`📤 WA sent via Twilio to ${m.phone} (SID: ${provider.sid})`);
+          } else {
+            console.log(`📝 WA bot reply stored locally for ${m.phone} (${provider.reason})`);
+          }
+        }
+      } catch (err) {
+        console.error("Chatbot processing error:", err);
+      }
+    }
+    res.status(200).json({ ok: true, received: messages.length });
+  });
 });
 
 /* Try to handle both Meta Cloud and Twilio inbound formats */

@@ -21,32 +21,59 @@ const fs = require("fs");
 })();
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 
-const { db } = require("./db");
-const { ensureDefaultAdmin } = require("./auth");
+const { db, asyncLocalStorage, getTenantDb } = require("./db");
+const { ensureDefaultAdmin, requireAuth } = require("./auth");
 const seed = require("./seed");
 
 const PORT = process.env.PORT || 4000;
+const JWT_SECRET = process.env.JWT_SECRET || "change-me-in-production";
 
 const app = express();
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "")
   .split(",").map(s => s.trim()).filter(Boolean);
 app.use(cors({
   origin: (origin, cb) => {
-    // Allow all origins dynamically to prevent CORS blockages during deployment/demo
     return cb(null, true);
   },
   credentials: true,
 }));
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true })); // for Twilio webhook
+
+// Log requests
 app.use((req, _res, next) => {
   if (req.path.startsWith("/api/")) console.log(`${new Date().toISOString()} ${req.method} ${req.path}`);
   next();
 });
 
+// Database context middleware
+app.use((req, res, next) => {
+  const header = req.headers.authorization || "";
+  const token = header.startsWith("Bearer ") ? header.slice(7) : null;
+  let tenantId = null;
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      if (decoded && decoded.tenant_id) {
+        tenantId = decoded.tenant_id;
+      }
+    } catch (e) {
+      // Ignore token validation errors here, requireAuth handles 401s
+    }
+  }
+
+  const activeDb = getTenantDb(tenantId);
+  asyncLocalStorage.run({ db: activeDb, tenantId }, () => {
+    next();
+  });
+});
+
 /* ---- API routes ---- */
 app.use("/api/auth", require("./routes/auth"));
+app.use("/api/superadmin", require("./routes/superadmin"));
 app.use("/api/customers", require("./routes/customers"));
 app.use("/api/products", require("./routes/products"));
 app.use("/api/partners", require("./routes/partners"));
@@ -65,17 +92,19 @@ if (fs.existsSync(frontendDir)) {
   app.use(express.static(frontendDir));
   app.get("/", (_req, res) => res.sendFile(path.join(frontendDir, "index.html")));
   app.get("/login", (_req, res) => res.sendFile(path.join(frontendDir, "login.html")));
-  // Catch-all for SPA-style routes (fallback to index.html)
   app.get(/^\/(?!api\/).*/, (_req, res) => res.sendFile(path.join(frontendDir, "index.html")));
 }
 
 /* ---- Bootstrap ---- */
-ensureDefaultAdmin();
-const customerCount = db.prepare("SELECT COUNT(*) AS c FROM customers").get().c;
-if (customerCount === 0) {
-  console.log("Seeding demo data…");
-  seed();
-}
+const defaultDb = getTenantDb("default");
+asyncLocalStorage.run({ db: defaultDb, tenantId: "default" }, () => {
+  ensureDefaultAdmin();
+  const customerCount = db.prepare("SELECT COUNT(*) AS c FROM customers").get().c;
+  if (customerCount === 0) {
+    console.log("Seeding demo data for default tenant…");
+    seed();
+  }
+});
 
 app.listen(PORT, () => {
   console.log("");

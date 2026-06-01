@@ -32,7 +32,7 @@ const LEAD_STAGES = [
   { id: "lost",      label: "Lost",      badge: "badge-danger" },
 ];
 
-const ROUTES = [
+const PROVIDER_ROUTES = [
   { id: "dashboard",     label: "Dashboard",          icon: "dashboard", section: "OVERVIEW" },
   { id: "customers",     label: "Customers",          icon: "users",     section: "SALES" },
   { id: "orders",        label: "Orders",             icon: "package",   section: "SALES" },
@@ -45,3 +45,20 @@ const ROUTES = [
   { id: "reports",       label: "Reports",            icon: "chart",     section: "INSIGHTS" },
   { id: "settings",      label: "Settings",           icon: "settings",  section: "SYSTEM" },
 ];
+
+const SUPER_ROUTES = [
+  { id: "sa-dashboard",  label: "Overview",           icon: "dashboard", section: "SYSTEM OVERVIEW" },
+  { id: "sa-providers",  label: "Providers/Tenants",  icon: "users",     section: "MANAGEMENT" },
+  { id: "sa-billing",    label: "Invoices & Billing", icon: "package",   section: "MANAGEMENT" },
+  { id: "sa-tickets",    label: "Support Tickets",    icon: "message",   section: "MANAGEMENT" },
+  { id: "sa-settings",   label: "System Settings",    icon: "settings",  section: "SYSTEM" },
+];
+
+let ROUTES = PROVIDER_ROUTES;
+
+// Super Admin state variables
+State.saAnalytics = null;
+State.saProviders = [];
+State.saInvoices = [];
+State.saTickets = [];
+State.saSettings = {};

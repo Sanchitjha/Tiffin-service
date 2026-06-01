@@ -34,5 +34,26 @@ const API = (() => {
     reports:       { summary: range => API.get("/reports/summary?range="+range), dashboard: () => API.get("/reports/dashboard"), activity: (limit=20) => API.get("/reports/activity?limit="+limit), areaIntelligence: () => API.get("/reports/area-intelligence"), cookPlan: () => API.get("/reports/cook-plan"), customizations: () => API.get("/reports/customizations") },
     settings:      { all: () => API.get("/settings"), set: (k,v) => API.put("/settings/"+k, { value: v }), restore: (data) => API.post("/settings/backup/restore", data), reset: () => API.post("/settings/reset") },
     auth:          { me: () => API.get("/auth/me"), changePassword: (currentPassword, newPassword) => API.post("/auth/change-password", { currentPassword, newPassword }) },
+    superadmin: {
+      analytics: () => API.get("/superadmin/analytics"),
+      providers: {
+        list: () => API.get("/superadmin/providers"),
+        create: b => API.post("/superadmin/providers", b),
+        update: (id, b) => API.put("/superadmin/providers/" + id, b)
+      },
+      billing: {
+        list: () => API.get("/superadmin/billing"),
+        create: b => API.post("/superadmin/billing", b),
+        update: (id, status) => API.put("/superadmin/billing/" + id, { status })
+      },
+      tickets: {
+        list: () => API.get("/superadmin/tickets"),
+        update: (id, status) => API.put("/superadmin/tickets/" + id, { status })
+      },
+      settings: {
+        get: () => API.get("/superadmin/settings"),
+        set: b => API.put("/superadmin/settings", b)
+      }
+    },
   };
 })();
